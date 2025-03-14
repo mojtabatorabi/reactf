@@ -1,0 +1,40 @@
+# .github/workflows/deploy.yml
+name: Deploy to Sentry
+
+on:
+  push:
+    branches: [master]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0  # This ensures all commits are fetched
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.21'
+
+      - name: Install Pulumi
+        uses: pulumi/setup-pulumi@v2
+
+      - name: Install Sentry CLI
+        run: curl -sL https://sentry.io/get-cli/ | bash
+
+      - name: Configure Sentry CLI
+        run: |
+          # Set up Sentry auth using GitHub secrets
+          sentry-cli config set auth.token ${{ secrets.SENTRY_AUTH_TOKEN }}
+          sentry-cli config set defaults.org your-org-slug
+          sentry-cli config set defaults.project your-project-slug
+        
+      - name: Deploy with Pulumi
+        run: pulumi up --yes
+        env:
+          PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_ORG: your-org-slug
+          SENTRY_PROJECT: your-project-slug
