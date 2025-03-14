@@ -28,8 +28,8 @@ jobs:
         run: |
           # Set up Sentry auth using GitHub secrets
           sentry-cli config set auth.token ${{ secrets.SENTRY_AUTH_TOKEN }}
-          sentry-cli config set defaults.org your-org-slug
-          sentry-cli config set defaults.project your-project-slug
+          sentry-cli config set defaults.org example-org1
+          sentry-cli config set defaults.project exampleProject-1
         
       - name: Deploy with Pulumi
         run: pulumi up --yes
